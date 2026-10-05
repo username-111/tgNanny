@@ -3,9 +3,13 @@ import cv2
 import io
 import time
 import subprocess
-from config import BOT_TOKEN, ALLOWED_USER_ID
+from config import BOT_TOKEN, ALLOWED_USER_IDS
 
 bot = telebot.TeleBot(BOT_TOKEN)
+
+
+def is_allowed_user(user_id: int) -> bool:
+    return user_id in ALLOWED_USER_IDS
 
 def get_webcam_shot():
     # 0 — встроенная камера по умолчанию
@@ -31,8 +35,8 @@ def get_webcam_shot():
 
 @bot.message_handler(commands=['snap'])
 def handle_snap(message):
-    # Защита: реагируем только на ваш ID
-    if message.from_user.id != ALLOWED_USER_ID:
+    # Защита: реагируем только на пользователей из белого списка
+    if not is_allowed_user(message.from_user.id):
         return
 
     bot.send_message(message.chat.id, "Делаю снимок...")
@@ -47,7 +51,7 @@ def handle_snap(message):
 
 @bot.message_handler(commands=['shutdown'])
 def handle_shutdown(message):
-    if message.from_user.id != ALLOWED_USER_ID:
+    if not is_allowed_user(message.from_user.id):
         return
 
     bot.send_message(

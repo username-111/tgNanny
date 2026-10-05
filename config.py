@@ -28,10 +28,25 @@ def _get_required_value(section: configparser.SectionProxy, key: str) -> str:
     return value
 
 
+def _parse_allowed_user_ids(raw_value: str) -> set[int]:
+    values = [item.strip() for item in raw_value.split(",")]
+    values = [item for item in values if item]
+    if not values:
+        raise RuntimeError("Параметр 'allowed_user_ids' в config.ini не должен быть пустым.")
+
+    parsed_ids: set[int] = set()
+    for value in values:
+        try:
+            parsed_ids.add(int(value))
+        except ValueError as exc:
+            raise RuntimeError(
+                "Параметр 'allowed_user_ids' в config.ini должен содержать "
+                "только целые числа, разделённые запятыми."
+            ) from exc
+
+    return parsed_ids
+
+
 _telegram = _load_config()
 BOT_TOKEN = _get_required_value(_telegram, "bot_token")
-
-try:
-    ALLOWED_USER_ID = int(_get_required_value(_telegram, "allowed_user_id"))
-except ValueError as exc:
-    raise RuntimeError("Параметр 'allowed_user_id' в config.ini должен быть целым числом.") from exc
+ALLOWED_USER_IDS = _parse_allowed_user_ids(_get_required_value(_telegram, "allowed_user_ids"))
