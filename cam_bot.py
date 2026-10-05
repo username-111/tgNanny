@@ -2,6 +2,7 @@ import telebot
 import cv2
 import io
 import time
+import subprocess
 from config import BOT_TOKEN, ALLOWED_USER_ID
 
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -42,6 +43,23 @@ def handle_snap(message):
         bot.send_photo(message.chat.id, photo, caption="Кадр из комнаты")
     else:
         bot.send_message(message.chat.id, "Ошибка: не удалось получить доступ к камере.")
+
+
+@bot.message_handler(commands=['shutdown'])
+def handle_shutdown(message):
+    if message.from_user.id != ALLOWED_USER_ID:
+        return
+
+    bot.send_message(
+        message.chat.id,
+        "Получена команда на выключение. Компьютер выключится через 30 секунд."
+    )
+
+    try:
+        subprocess.run(["shutdown", "/s", "/f", "/t", "30"], check=True)
+    except (subprocess.CalledProcessError, OSError) as exc:
+        bot.send_message(message.chat.id, f"Ошибка запуска выключения: {exc}")
+
 
 if __name__ == '__main__':
     print("Бот запущен. Нажмите Ctrl+C для остановки.")
