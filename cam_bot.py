@@ -2,9 +2,7 @@ import telebot
 import cv2
 import io
 import time
-
-BOT_TOKEN = "ВАШ_ТОКЕН_ОТ_BOTFATHER"
-ALLOWED_USER_ID = 123456789  # ВАШ ЦИФРОВОЙ ID
+from config import BOT_TOKEN, ALLOWED_USER_ID
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
